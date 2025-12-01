@@ -1,9 +1,3 @@
--------------------------------------------------------------------
-
-Core Dependencies and Builds
-
--------------------------------------------------------------------
-
 /node_modules
 /jspm_packages
 /web_modules
@@ -12,14 +6,6 @@ Core Dependencies and Builds
 /out
 /coverage
 .nyc_output
-
--------------------------------------------------------------------
-
-Logs and Runtime Artifacts
-
--------------------------------------------------------------------
-
-Logs
 
 logs
 .log
@@ -40,23 +26,11 @@ Output of 'npm pack'
 
 *.tgz
 
--------------------------------------------------------------------
-
-Environment Files (Security)
-
--------------------------------------------------------------------
-
 dotenv environment variable files
 
 .env
 .env.*
 !.env.example  # Keep the template file if it exists
-
--------------------------------------------------------------------
-
-Caches and Temporary Directories
-
--------------------------------------------------------------------
 
 General Caches
 
@@ -97,12 +71,6 @@ VS Code
 
 .vscode-test
 .tern-port
-
--------------------------------------------------------------------
-
-OS and Editor Specific Files
-
--------------------------------------------------------------------
 
 macOS
 
