@@ -68,6 +68,7 @@
         };
 
         // If the environment provides the global config variables, expose them globally
+        // NOTE: These are primarily for the Canvas environment.
         if (typeof __firebase_config !== 'undefined') window.__firebase_config = __firebase_config;
         if (typeof __app_id !== 'undefined') window.__app_id = __app_id;
         if (typeof __initial_auth_token !== 'undefined') window.__initial_auth_token = __initial_auth_token;
@@ -75,10 +76,37 @@
 
     <!-- Application Code (App.jsx content pasted here) -->
     <script type="text/babel">
-        // Inject global variables expected by the React component
-        const __firebase_config = window.__firebase_config || '{}';
-        const __app_id = window.__app_id || 'growth-tribe';
+        // --- Configuration & Constants ---
+
+        // Hardcoded configuration for external deployment (e.g., GitHub Pages)
+        const DEPLOYMENT_FIREBASE_CONFIG = {
+          apiKey: "AIzaSyCNUcim4zcv3DwCIIK6Y2O0qxiTKIxIeeY",
+          authDomain: "growth-tribe.firebaseapp.com",
+          projectId: "growth-tribe",
+          storageBucket: "growth-tribe.firebasestorage.app",
+          messagingSenderId: "63651197966",
+          appId: "1:63651197966:web:af1e5a63a041ab069df85f",
+          measurementId: "G-7MR5Z5SNXW"
+        };
+        const DEPLOYMENT_APP_ID = '1:63651197966:web:af1e5a63a041ab069df85f';
         
+        // Use Canvas globals if available, otherwise fall back to the provided configuration
+        const firebaseConfig = JSON.parse(window.__firebase_config || JSON.stringify(DEPLOYMENT_FIREBASE_CONFIG));
+        const appId = window.__app_id || DEPLOYMENT_APP_ID;
+
+        const THEME = {
+          primary: '#b425aa',
+          accent: '#d4af37', // Gold
+        };
+
+        const LOGO_URL = "https://appimize.app/assets/apps/user_1097/images/2d5cb5dadead_225_1097.png";
+
+        const BADGES = [
+          { name: 'Seedling', threshold: 0, icon: <Leaf size={16} /> },
+          { name: 'Sprout', threshold: 500, icon: <TrendingUp size={16} /> },
+          { name: 'Bloom', threshold: 1000, icon: <Sun size={16} /> },
+        ];
+
         // Re-map imports to global access since we are in a single script context
         const React = window.React;
         const ReactDOM = window.ReactDOM;
@@ -89,7 +117,6 @@
         } = window.firebase || {};
         
         // --- Lucide Icons (Inline SVG definitions) ---
-        // Defined here because external imports fail in a single-file setup
         const Heart = ({ size, fill, className, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>;
         const MessageCircle = ({ size, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>;
         const User = ({ size, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
@@ -105,33 +132,19 @@
         const Sun = ({ size, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
         const LogOut = ({ size, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>;
 
-        // --- Configuration & Constants ---
-        const THEME = {
-          primary: '#b425aa',
-          accent: '#d4af37', // Gold
-        };
-
-        const LOGO_URL = "https://appimize.app/assets/apps/user_1097/images/2d5cb5dadead_225_1097.png";
-
-        const BADGES = [
-          { name: 'Seedling', threshold: 0, icon: <Leaf size={16} /> },
-          { name: 'Sprout', threshold: 500, icon: <TrendingUp size={16} /> },
-          { name: 'Bloom', threshold: 1000, icon: <Sun size={16} /> },
-        ];
-
-        // --- Firebase Initialization (Simulated Backend Setup) ---
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'growth-tribe';
-
+        // --- Firebase Initialization ---
         let app, auth, db;
-        if (window.firebase && window.firebase.initializeApp) {
+        if (window.firebase && window.firebase.initializeApp && Object.keys(firebaseConfig).length > 0) {
             try {
               app = initializeApp(firebaseConfig);
               auth = getAuth(app);
               db = getFirestore(app);
             } catch (error) {
-              console.error("Firebase initialization error:", error);
+              // Log the error to help with debugging the connection issue
+              console.error("Firebase initialization error (Check your config!):", error);
             }
+        } else if (Object.keys(firebaseConfig).length === 0) {
+             console.error("Firebase config is empty. Please replace the placeholder in index.html with your actual config.");
         }
 
 
@@ -364,16 +377,24 @@
           const [userProfile, setUserProfile] = useState(null);
           const [activeTab, setActiveTab] = useState('home');
           const [posts, setPosts] = useState([]);
-          const [loading, setLoading] = useState(true);
+          // Set initial loading state based on successful Firebase initialization
+          const [loading, setLoading] = useState(!auth || !db); 
           const [showCreatePost, setShowCreatePost] = useState(false);
           const [showAiCoach, setShowAiCoach] = useState(false);
           
           // 1. Auth & Initial Load
           useEffect(() => {
-            if (!auth || !db) return;
+            if (!auth || !db) {
+                // If auth or db are null, it means Firebase failed to initialize
+                // due to a missing or invalid config. We stay in loading state.
+                setLoading(true);
+                return;
+            }
 
             const initAuth = async () => {
               try {
+                // In deployed environment, window.__initial_auth_token is likely null,
+                // so we sign in anonymously for public access.
                 const token = typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : null;
                 if (token) {
                   await signInWithCustomToken(auth, token);
@@ -388,7 +409,7 @@
 
             const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
               setUser(currentUser);
-              setLoading(false); 
+              setLoading(false); // Authentication attempt finished, hide loading screen
               
               if (currentUser) {
                 // Public profile listener for points/badges
@@ -423,7 +444,7 @@
 
           // 2. Fetch Posts (Data Backend)
           useEffect(() => {
-            // Only fetch data if the user object is available
+            // Only fetch data if the user object is available AND Firebase is initialized
             if (!user || !db) return;
 
             const postsRef = collection(db, 'artifacts', appId, 'public', 'data', 'posts');
@@ -514,11 +535,15 @@
           }, [user]);
 
           // 4. View Rendering
-          if (loading || !user) { 
+          if (loading || (!user && !auth && Object.keys(firebaseConfig).length === 0)) { 
             return (
               <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
                 <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                <p className="mt-4 font-medium text-primary">Establishing Connection...</p>
+                <p className="mt-4 font-medium text-primary">
+                    {Object.keys(firebaseConfig).length === 0 
+                        ? "ERROR: Firebase Config Missing. Check console." 
+                        : "Establishing Connection..."}
+                </p>
               </div>
             );
           }
