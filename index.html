@@ -422,6 +422,9 @@
                 // Public profile listener for points/badges
                 const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', currentUser.uid);
                 
+                // ADDED DEBUG LOG: Check if this path matches your rules!
+                console.log(`[Firestore] Listening to Profile Path: artifacts/${appId}/public/data/profiles/${currentUser.uid}`);
+                
                 // Listener for the user profile data
                 const unsubscribeProfile = onSnapshot(profileRef, (snap) => {
                   if (snap.exists()) {
@@ -439,7 +442,7 @@
                     setDoc(profileRef, initialData, { merge: true });
                     setUserProfile({ uid: currentUser.uid, ...initialData });
                   }
-                }, (error) => console.error("Profile snapshot error:", error));
+                }, (error) => console.error("Profile snapshot error: Missing or insufficient permissions. Check your Firestore Security Rules.", error));
                 
                 return () => unsubscribeProfile();
               } else {
@@ -455,8 +458,12 @@
             // Only fetch data if the user object is available AND Firebase is initialized
             if (!user || !db) return;
 
+            const postsCollectionPath = `artifacts/${appId}/public/data/posts`;
             const postsRef = collection(db, 'artifacts', appId, 'public', 'data', 'posts');
             
+            // ADDED DEBUG LOG
+            console.log(`[Firestore] Listening to Posts Collection: ${postsCollectionPath}`);
+
             // Real-time listener for posts
             const unsubscribePosts = onSnapshot(postsRef, (snapshot) => {
               const fetchedPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -464,7 +471,7 @@
               fetchedPosts.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
               setPosts(fetchedPosts);
             }, (error) => {
-              console.error("Error fetching posts:", error);
+              console.error("Error fetching posts: Missing or insufficient permissions. Check your Firestore Security Rules.", error);
             });
 
             return () => unsubscribePosts();
