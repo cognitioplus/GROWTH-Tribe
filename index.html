@@ -55,7 +55,10 @@
     <!-- Load Babel for JSX and ES6+ support -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Load Firebase Modules -->
+    <!-- 
+        Firebase Modules: Using stable v11.6.1 CDNs.
+        These imports expose the necessary functions globally for the Babel script to consume. 
+    -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -68,7 +71,6 @@
         };
 
         // If the environment provides the global config variables, expose them globally
-        // NOTE: These are primarily for the Canvas environment.
         if (typeof __firebase_config !== 'undefined') window.__firebase_config = __firebase_config;
         if (typeof __app_id !== 'undefined') window.__app_id = __app_id;
         if (typeof __initial_auth_token !== 'undefined') window.__initial_auth_token = __initial_auth_token;
@@ -101,13 +103,8 @@
 
         const LOGO_URL = "https://appimize.app/assets/apps/user_1097/images/2d5cb5dadead_225_1097.png";
 
-        const BADGES = [
-          { name: 'Seedling', threshold: 0, icon: <Leaf size={16} /> },
-          { name: 'Sprout', threshold: 500, icon: <TrendingUp size={16} /> },
-          { name: 'Bloom', threshold: 1000, icon: <Sun size={16} /> },
-        ];
-
         // Re-map imports to global access since we are in a single script context
+        // NOTE: We rely on React being loaded via CDN scripts into the global window scope.
         const React = window.React;
         const ReactDOM = window.ReactDOM;
         const { useState, useEffect, useCallback } = React;
@@ -117,6 +114,7 @@
         } = window.firebase || {};
         
         // --- Lucide Icons (Inline SVG definitions) ---
+        // DEFINED FIRST
         const Heart = ({ size, fill, className, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>;
         const MessageCircle = ({ size, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>;
         const User = ({ size, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
@@ -131,6 +129,14 @@
         const TrendingUp = ({ size, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 10.5 12.5 5 18"/><path d="M18 7h4v4"/></svg>;
         const Sun = ({ size, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
         const LogOut = ({ size, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>;
+
+        // BADGES array definition moved AFTER icon components are defined
+        const BADGES = [
+          { name: 'Seedling', threshold: 0, icon: <Leaf size={16} /> },
+          { name: 'Sprout', threshold: 500, icon: <TrendingUp size={16} /> },
+          { name: 'Bloom', threshold: 1000, icon: <Sun size={16} /> },
+        ];
+
 
         // --- Firebase Initialization ---
         let app, auth, db;
@@ -217,7 +223,8 @@
           
           const formatDate = (timestamp) => {
             if (!timestamp) return 'Just now';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            // Check if it's a Firestore Timestamp object and convert, otherwise assume it's already a Date/timestamp
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp); 
             return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
           };
 
@@ -428,7 +435,8 @@
                       joinedAt: serverTimestamp(),
                       userId: currentUser.uid // Include for debugging/sharing
                     };
-                    setDoc(profileRef, initialData);
+                    // Use setDoc to ensure the profile document is created
+                    setDoc(profileRef, initialData, { merge: true });
                     setUserProfile({ uid: currentUser.uid, ...initialData });
                   }
                 }, (error) => console.error("Profile snapshot error:", error));
@@ -466,6 +474,7 @@
           const handleCreatePost = useCallback(async (postData) => {
             if (!user || !userProfile || !db) return;
 
+            // Find current badge for display on the post (snapshot of time of posting)
             const currentBadge = BADGES.slice().reverse().find(b => userProfile.points >= b.threshold)?.name || 'Seedling';
 
             const newPost = {
@@ -618,6 +627,7 @@
                       <h2 className="text-2xl font-bold text-gray-900">{userProfile.displayName}</h2>
                       <p className="text-xs text-gray-500 mt-1">User ID: {userProfile.userId}</p>
                       <div className="flex items-center justify-center gap-2 mt-2 text-primary font-medium bg-gray-100 py-1 px-3 rounded-full mx-auto w-fit">
+                        {/* Ensure the icon renders correctly */}
                         {BADGES.slice().reverse().find(b => userProfile.points >= b.threshold)?.icon}
                         <span>{BADGES.slice().reverse().find(b => userProfile.points >= b.threshold)?.name}</span>
                       </div>
@@ -628,6 +638,7 @@
                               {BADGES.map(badge => (
                                   <li key={badge.name} className={`flex items-center justify-between p-3 rounded-lg ${userProfile.points >= badge.threshold ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
                                       <div className="flex items-center gap-3">
+                                          {/* Ensure the icon renders correctly */}
                                           {badge.icon}
                                           <span className="font-semibold">{badge.name}</span>
                                       </div>
