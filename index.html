@@ -1,77 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Growth Tribe Forum</title>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Montserrat:wght@400;600&family=Roboto+Condensed:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
-  <script src="script.js" defer></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <meta charset="UTF-8">
+    <!-- PWA Requirement: Ensures proper scaling and responsiveness on all devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GROWTH Tribe - Support, Knowledge, and Practice Hub</title>
+    
+    <!-- Link to the Manifest file for PWA capabilities (as you selected) -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Link to the App Icon -->
+    <link rel="icon" type="image/png" href="https://appimize.app/assets/apps/user_1097/images/2d5cb5dadead_225_1097.png">
+    
+    <!-- Load Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom style configuration and fonts -->
+    <style>
+        /* Apply fonts defined in the component, and ensure smooth full-height layout */
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+        /* Hide scrollbars on mobile-like view, but allow content to scroll */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* The root container for the single-file React app */
+        #root {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+    </style>
 </head>
-
 <body>
-  <header id="header-forum">
-    <div class="logo">🌱 Growth Tribe</div>
-    <nav class="nav-menu" id="nav-menu">
-      <a href="#topics">Topics</a>
-      <a href="#members">Members</a>
-      <a href="#about">About</a>
-      <a href="#login">Login</a>
-    </nav>
-    <button class="nav-toggle" id="nav-toggle"><i class="fas fa-bars"></i></button>
-  </header>
+    <!-- This is the root element where the React application will be mounted -->
+    <div id="root"></div>
 
-  <section id="hero-section">
-    <h1 class="fade-in">Welcome to the Growth Tribe Forum</h1>
-    <p class="fade-in-delay">A place for well-being, support, and shared wisdom 🌟</p>
-    <a href="#topics" class="cta-button bounce">Explore Topics</a>
-  </section>
+    <!-- The actual React application code is loaded here. 
+         I changed the extension to .js to resolve the SyntaxError. -->
+    <script type="module">
+        import App from './growth_tribe_app.js';
+        import { createRoot } from 'https://esm.sh/react-dom/client';
+        import React from 'https://esm.sh/react';
 
-  <section id="topics" class="section-wrapper">
-    <h2>🔥 Trending Topics</h2>
-    <div class="topics-grid">
-      <div class="topic-card hover-rise" id="topic-mindfulness">
-        <i class="fas fa-brain"></i>
-        <h3>Mindfulness</h3>
-        <p>Join discussions about staying present and reducing stress.</p>
-      </div>
-      <div class="topic-card hover-rise" id="topic-nutrition">
-        <i class="fas fa-carrot"></i>
-        <h3>Nutrition</h3>
-        <p>Tips on healthy eating and sustainable diets.</p>
-      </div>
-      <div class="topic-card hover-rise" id="topic-goals">
-        <i class="fas fa-bullseye"></i>
-        <h3>Goal Setting</h3>
-        <p>Share your wins, obstacles, and growth hacks.</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="members" class="section-wrapper">
-    <h2>🌍 Meet the Community</h2>
-    <div class="members-grid">
-      <div class="member-card fade-in" id="member1">
-        <img src="https://randomuser.me/api/portraits/women/50.jpg" alt="user1"/>
-        <h4>@wellness_jane</h4>
-        <p>Mental health advocate</p>
-      </div>
-      <div class="member-card fade-in-delay" id="member2">
-        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="user2"/>
-        <h4>@growth_john</h4>
-        <p>Life coach & mentor</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="about" class="section-wrapper">
-    <h2>📘 About Growth Tribe</h2>
-    <p>We are a community built on compassion, personal growth, and peer support. Everyone is welcome here.</p>
-  </section>
-
-  <footer id="footer-section">
-    <p>&copy; 2025 Growth Tribe Forum. All rights reserved.</p>
-  </footer>
+        const rootElement = document.getElementById('root');
+        createRoot(rootElement).render(<App />);
+    </script>
 </body>
 </html>
