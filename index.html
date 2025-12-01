@@ -14,6 +14,9 @@
                     colors: {
                         primary: '#b425aa', // Deep Purple/Pink
                         accent: '#d4af37',  // Gold
+                    },
+                    fontFamily: {
+                         sans: ['Poppins', 'sans-serif'],
                     }
                 }
             }
@@ -30,6 +33,15 @@
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
+        }
+        /* Style for mobile devices to prevent content overflow outside the app frame */
+        .max-w-md.mx-auto {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        /* Style for the fixed header/footer on mobile */
+        .fixed.max-w-md.mx-auto {
+            left: 50%;
+            transform: translateX(-50%);
         }
     </style>
 </head>
@@ -54,10 +66,12 @@
             initializeApp, getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken,
             getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, setDoc, deleteDoc, serverTimestamp, increment
         };
-    </script>
 
-    <!-- Load Lucide-React equivalent (using a proxy or inline SVGs is the usual single-file approach) -->
-    <!-- For simplicity in this environment, we'll assume the Lucide icons are resolved by the platform or use inline definitions. -->
+        // If the environment provides the global config variables, expose them globally
+        if (typeof __firebase_config !== 'undefined') window.__firebase_config = __firebase_config;
+        if (typeof __app_id !== 'undefined') window.__app_id = __app_id;
+        if (typeof __initial_auth_token !== 'undefined') window.__initial_auth_token = __initial_auth_token;
+    </script>
 
     <!-- Application Code (App.jsx content pasted here) -->
     <script type="text/babel">
@@ -74,8 +88,8 @@
             getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, setDoc, deleteDoc, serverTimestamp, increment 
         } = window.firebase || {};
         
-        // Define Lucide components (as they are not imported via CDN here)
-        // Note: In a real single-file React, we define these or use SVGs.
+        // --- Lucide Icons (Inline SVG definitions) ---
+        // Defined here because external imports fail in a single-file setup
         const Heart = ({ size, fill, className, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>;
         const MessageCircle = ({ size, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>;
         const User = ({ size, ...props }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
@@ -110,7 +124,7 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'growth-tribe';
 
         let app, auth, db;
-        if (firebase && firebase.initializeApp) {
+        if (window.firebase && window.firebase.initializeApp) {
             try {
               app = initializeApp(firebaseConfig);
               auth = getAuth(app);
@@ -123,7 +137,8 @@
 
         // --- Gemini API Helper (Simulated API Gateway) ---
         const callGemini = async (prompt) => {
-          const apiKey = ""; // Provided by environment
+          // IMPORTANT: API Key is left as empty string, expected to be provided by the execution environment.
+          const apiKey = ""; 
           const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
           let retries = 0;
@@ -164,7 +179,7 @@
         const NavBtn = ({ icon, label, active, onClick }) => (
           <button 
             onClick={onClick}
-            className={`flex flex-col items-center justify-center w-16 transition-colors duration-200 ${active ? 'text-[#b425aa]' : 'text-gray-400'}`}
+            className={`flex flex-col items-center justify-center w-16 transition-colors duration-200 ${active ? 'text-primary' : 'text-gray-400'}`}
           >
             {icon}
             <span className="text-[10px] font-medium mt-1">{label}</span>
@@ -174,8 +189,8 @@
         const Header = ({ userProfile }) => (
           <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm z-50 px-4 py-3 shadow-sm border-b border-gray-100 flex justify-between items-center max-w-md mx-auto">
             <div className="flex items-center gap-3">
-              <img src={LOGO_URL} alt="Growth Tribe" className="w-8 h-8 rounded-full object-cover border-2 border-[#d4af37]" />
-              <h1 className="text-lg font-bold text-[#b425aa]">GROWTH Tribe</h1>
+              <img src={LOGO_URL} alt="Growth Tribe" className="w-8 h-8 rounded-full object-cover border-2 border-accent" />
+              <h1 className="text-lg font-bold text-primary">GROWTH Tribe</h1>
             </div>
             <div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -199,7 +214,7 @@
                 <div className="flex gap-3">
                   <img 
                     src={post.authorAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.authorId}`} 
-                    className="w-10 h-10 rounded-full object-cover border-2 border-[#b425aa]" 
+                    className="w-10 h-10 rounded-full object-cover border-2 border-primary" 
                     alt="avatar" 
                   />
                   <div>
@@ -218,7 +233,7 @@
                   <Heart size={20} fill={isLiked ? "currentColor" : "none"} />
                   <span>{post.likeCount || 0}</span>
                 </button>
-                <button className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-[#b425aa]">
+                <button className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-primary">
                     <MessageCircle size={20} />
                     <span>{post.commentCount || 0}</span>
                 </button>
@@ -243,12 +258,12 @@
             <div className="fixed inset-0 bg-black/60 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
               <div className="bg-white w-full max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col">
                 <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                  <button onClick={onClose} className="text-gray-500">Cancel</button>
+                  <button onClick={onClose} className="text-gray-500 hover:text-gray-700">Cancel</button>
                   <h2 className="font-bold text-lg text-gray-800">New Post</h2>
                   <button 
                     onClick={handleSubmit} 
                     disabled={!content.trim() || isSubmitting}
-                    className={`font-bold px-4 py-1.5 rounded-full transition-colors ${content.trim() ? 'bg-[#b425aa] text-white' : 'bg-gray-200 text-gray-400'}`}
+                    className={`font-bold px-4 py-1.5 rounded-full transition-colors ${content.trim() ? 'bg-primary text-white hover:bg-primary/90' : 'bg-gray-200 text-gray-400'}`}
                   >
                     {isSubmitting ? 'Posting...' : 'Post'}
                   </button>
@@ -256,7 +271,7 @@
                 
                 <div className="p-4">
                   <textarea
-                    className="w-full h-32 text-lg resize-none outline-none placeholder-gray-400 p-2 border border-gray-100 rounded-lg focus:border-[#b425aa]"
+                    className="w-full h-32 text-lg resize-none outline-none placeholder-gray-400 p-2 border border-gray-100 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                     placeholder="Share your growth journey..."
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
@@ -274,7 +289,7 @@
           const [loading, setLoading] = useState(false);
 
           const handleAskCoach = async () => {
-            if (!input.trim()) return;
+            if (!input.trim() || loading) return;
             setLoading(true);
             setResponse('');
             
@@ -290,9 +305,9 @@
           return (
             <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
               <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-                <div className="bg-[#b425aa] p-4 text-white flex justify-between items-center">
+                <div className="bg-primary p-4 text-white flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <Bot size={24} className="text-[#d4af37]" />
+                    <Bot size={24} className="text-accent" />
                     <h2 className="font-bold text-lg">Growth Coach</h2>
                   </div>
                   <button onClick={onClose} className="text-white/80 hover:text-white"><X size={24}/></button>
@@ -305,7 +320,7 @@
                         What's on your mind today?
                       </p>
                       <textarea 
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 resize-none h-32 focus:border-[#b425aa]"
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 resize-none h-32 focus:border-primary focus:ring-2 focus:ring-primary/50"
                         placeholder="I'm feeling a bit overwhelmed..."
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -313,7 +328,7 @@
                       <button 
                         onClick={handleAskCoach}
                         disabled={!input.trim() || loading}
-                        className="w-full mt-4 bg-[#d4af37] text-white font-bold py-3 rounded-xl shadow-md hover:bg-[#b8962e] disabled:opacity-50"
+                        className="w-full mt-4 bg-accent text-white font-bold py-3 rounded-xl shadow-md hover:bg-accent/90 disabled:opacity-50 transition-colors"
                       >
                         {loading ? 'Thinking...' : '✨ Get Guidance'}
                       </button>
@@ -321,7 +336,7 @@
                   ) : (
                     <div className="space-y-4">
                       <div className="flex gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#b425aa] flex items-center justify-center flex-shrink-0 text-white">
+                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 text-white">
                           <Bot size={16} />
                         </div>
                         <div className="bg-gray-100 p-4 rounded-xl text-gray-800 text-sm whitespace-pre-wrap">
@@ -330,7 +345,7 @@
                       </div>
                       <button 
                         onClick={() => { setInput(''); setResponse(''); }}
-                        className="w-full mt-6 text-[#b425aa] font-semibold text-sm hover:underline"
+                        className="w-full mt-6 text-primary font-semibold text-sm hover:underline"
                       >
                         Ask something else
                       </button>
@@ -380,7 +395,7 @@
                 const profileRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', currentUser.uid);
                 
                 // Listener for the user profile data
-                onSnapshot(profileRef, (snap) => {
+                const unsubscribeProfile = onSnapshot(profileRef, (snap) => {
                   if (snap.exists()) {
                     setUserProfile({ uid: currentUser.uid, ...snap.data() });
                   } else {
@@ -395,7 +410,11 @@
                     setDoc(profileRef, initialData);
                     setUserProfile({ uid: currentUser.uid, ...initialData });
                   }
-                });
+                }, (error) => console.error("Profile snapshot error:", error));
+                
+                return () => unsubscribeProfile();
+              } else {
+                  setUserProfile(null);
               }
             });
 
@@ -495,20 +514,30 @@
           }, [user]);
 
           // 4. View Rendering
-          if (loading || !userProfile) { 
+          if (loading || !user) { 
             return (
               <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-                <div className="w-16 h-16 border-4 border-[#b425aa] border-t-transparent rounded-full animate-spin"></div>
-                <p className="mt-4 font-medium text-[#b425aa]">Establishing Connection...</p>
+                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p className="mt-4 font-medium text-primary">Establishing Connection...</p>
               </div>
             );
+          }
+          
+          if (!userProfile) {
+             // Handle state where user is authenticated but profile data hasn't loaded yet
+             return (
+                 <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+                    <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-4 font-medium text-accent">Loading User Profile...</p>
+                </div>
+             )
           }
 
           return (
             <div className="min-h-screen bg-gray-50 pb-20 font-sans text-gray-900">
               <style>{`
+                /* Ensure Poppins is used if available */
                 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-                body { font-family: 'Poppins', sans-serif; }
                 .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
               `}</style>
               
@@ -521,7 +550,7 @@
                 {activeTab === 'home' && (
                   <div className="p-4 pt-4">
                      {/* AI Coach Trigger */}
-                     <div className="bg-gradient-to-r from-[#b425aa]/90 to-[#d4af37]/90 rounded-xl p-4 text-white mb-6 shadow-lg flex justify-between items-center">
+                     <div className="bg-gradient-to-r from-primary/90 to-accent/90 rounded-xl p-4 text-white mb-6 shadow-lg flex justify-between items-center">
                         <h2 className="font-semibold text-sm">Need guidance?</h2>
                         <button 
                           onClick={() => setShowAiCoach(true)}
@@ -558,14 +587,29 @@
                     <div className="text-center mb-8">
                       <img 
                         src={userProfile.avatarUrl} 
-                        className="w-24 h-24 mx-auto rounded-full mb-3 border-4 border-[#d4af37] object-cover" 
+                        className="w-24 h-24 mx-auto rounded-full mb-3 border-4 border-accent object-cover" 
                         alt="avatar" 
                       />
                       <h2 className="text-2xl font-bold text-gray-900">{userProfile.displayName}</h2>
                       <p className="text-xs text-gray-500 mt-1">User ID: {userProfile.userId}</p>
-                      <div className="flex items-center justify-center gap-2 mt-2 text-[#b425aa] font-medium bg-gray-100 py-1 px-3 rounded-full mx-auto w-fit">
+                      <div className="flex items-center justify-center gap-2 mt-2 text-primary font-medium bg-gray-100 py-1 px-3 rounded-full mx-auto w-fit">
                         {BADGES.slice().reverse().find(b => userProfile.points >= b.threshold)?.icon}
                         <span>{BADGES.slice().reverse().find(b => userProfile.points >= b.threshold)?.name}</span>
+                      </div>
+                      
+                      <div className="mt-8 p-4 bg-white border border-gray-100 rounded-xl shadow-inner">
+                          <h3 className="font-bold text-lg text-gray-700 mb-3">Your Milestones</h3>
+                          <ul className="space-y-2 text-left">
+                              {BADGES.map(badge => (
+                                  <li key={badge.name} className={`flex items-center justify-between p-3 rounded-lg ${userProfile.points >= badge.threshold ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
+                                      <div className="flex items-center gap-3">
+                                          {badge.icon}
+                                          <span className="font-semibold">{badge.name}</span>
+                                      </div>
+                                      <span className="text-sm">{badge.threshold} GP</span>
+                                  </li>
+                              ))}
+                          </ul>
                       </div>
                     </div>
                     
@@ -617,7 +661,7 @@
                 
                 <button 
                   onClick={() => setActiveTab('create')}
-                  className="relative -top-5 bg-[#b425aa] text-white p-4 rounded-full shadow-xl border-4 border-gray-50 transition-transform active:scale-95"
+                  className="relative -top-5 bg-primary text-white p-4 rounded-full shadow-xl border-4 border-gray-50 transition-transform active:scale-95 hover:scale-[1.05]"
                 >
                   <PlusCircle size={32} />
                 </button>
