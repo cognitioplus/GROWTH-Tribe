@@ -1,0 +1,27 @@
+{
+  "name": "GROWTH Tribe - Personal Growth Community",
+  "short_name": "GROWTH Tribe",
+  "description": "Community hub for Personal Growth, Resilience, Overall Well-Being, Transformation, and Harmony",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://appimize.app/assets/apps/user_1097/images/2d5cb5dadead_225_1097.png",
+      "sizes": "225x225",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://appimize.app/assets/apps/user_1097/images/2d5cb5dadead_225_1097.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "social", "health"],
+  "lang": "en",
+  "dir": "ltr"
+}
