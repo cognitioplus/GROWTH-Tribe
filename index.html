@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://appimize.app/assets/apps/user_1097/images/2d5cb5dadead_225_1097.png" type="image/png">
+  <title>GROWTH Tribe - Personal Growth Community</title>
+  <meta name="description" content="Community hub for Personal Growth, Resilience, Overall Well-Being, Transformation, and Harmony" />
+  <meta name="author" content="GROWTH Tribe" />
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="GROWTH Tribe" />
+  <link rel="apple-touch-icon" href="https://appimize.app/assets/apps/user_1097/images/2d5cb5dadead_225_1097.png" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="GROWTH Tribe - Personal Growth Community" />
+  <meta property="og:description" content="Community hub for Personal Growth, Resilience, Overall Well-Being, Transformation, and Harmony" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://appimize.app/assets/apps/user_1097/images/2d5cb5dadead_225_1097.png" />
+
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+  </script>
+</body>
+
+</html>
